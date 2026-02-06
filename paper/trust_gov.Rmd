@@ -7,7 +7,7 @@ output:
     number_sections: no
     latex_engine: xelatex
     #pandoc_args: --lua-filter=multibib.lua
-title: "Introducing the Trust in Government (TrustGov) Dataset: A New Resource for Cross-National, Time-Series Trust Research"
+title: "Introducing the Trust in Government (TrustGov) Dataset: A New Resource for Cross-National Time-Series Trust Research"
 #thanks: "Corresponding author: [yhcasstai@psu.edu](mailto:yhcasstai@psu.edu). Current version: `r format(Sys.time(), '%B %d, %Y')`.  Replication materials and complete revision history may be found at [https://github.com/Tyhcass/TGOV](https://github.com/Tyhcass/TGOV). "
 #date: "`r format(Sys.time(), '%B %d, %Y')`"
 editor_options: 
@@ -56,8 +56,9 @@ header-includes:
 
 - Yuehong Cassandra Tai, corresponding author, ORCID: <https://orcid.org/0000-0001-7303-7443>, Assistant Research Professor, Center for Social Data Analytics, Pennsylvania State University, [yhcasstai\@psu.edu](mailto:yhcasstai@psu.edu){.email}
 
-# Data and Code Availability
-The code used to generate the dataset and conduct validation test are openly available at: https://github.com/Tyhcass/TGOV.
+# Data Availability Statement
+Replication materials are available on OSF: [https://osf.io/qr6ca/](https://osf.io/qr6ca/).
+The complete revision history is available on GitHub: https://github.com/Tyhcass/TGOV.
 
 # Conflict of Interest Disclosure
 The author declares no competing interests.
@@ -78,7 +79,7 @@ The author declares no competing interests.
 
 ```{=tex}
 \begin{abstract}
-Although political trust is a long-standing interdisciplinary topic, the lack of comparable time-series cross-national data has limited scholars’ ability to analyze its determinants and consequences and to generalize findings across countries and over time. To address this gap, this paper introduces the Trust in National Government (TrustGov) Dataset—a cross-national time-series resource covering 115 countries and territories from 1973 to 2020, harmonizing 1,555 country-year observations from 189 national and cross-national surveys using a Bayesian latent variable model. The dataset has been validated through a series of convergent and construct tests. TrustGov supports qualitative and mixed-method research by guiding case selection and enabling scholars to probe mechanisms behind shifts in trust. It also facilitates quantitative analyses of the dynamic relationships of trust with determinants such as inequality, election integrity,  and institutional performance, as well as outcomes including policy preferences, crisis resilience, and other social and political processes. The project will be updated regularly to incorporate new surveys and sustain ongoing research on political trust.
+Although political trust is a long-standing interdisciplinary topic, the lack of comparable cross-national time-series data has limited scholars’ ability to analyze its determinants and consequences and to generalize findings across countries and over time. To address this gap, this paper introduces the Trust in National Government (TrustGov) Dataset—a cross-national time-series resource covering 115 countries and territories from 1973 to 2020, harmonizing 1,545 country-year observations from 189 national and cross-national surveys using a Bayesian latent variable model. The dataset is validated through a series of convergent and construct tests. TrustGov supports qualitative and mixed-method research by guiding case selection and helping scholars probe mechanisms behind shifts in trust. It also enables quantitative analyses of trust's dynamic relationships with determinants such as inequality, election integrity,  and institutional performance, as well as outcomes, for example policy preferences and crisis resilience. The project will be updated regularly through periodic releases as new data become publicly available, supporting ongoing research on political trust.
 \end{abstract}
 
 Keywords: political trust, trust in government, latent variable model,  dataset
@@ -291,7 +292,8 @@ dcpo_input_raw_gov <- DCPOtools::dcpo_setup(vars = surveys_tb,
 surveys <-  read_csv(here::here("rawdata/trust_gov_survey.csv"),
                     col_types = "ccccccc") 
 
-dcpo_input_raw_gov <- read_csv(here::here("data","dcpo_input_raw_gov.csv") )
+dcpo_input_raw_gov <- read_csv(here::here("data","dcpo_input_raw_gov.csv")) %>%
+  filter(country != "Taiwan")
 
 with_min_coverage <- function(x, min_cov) {
   if (!is.na(min_cov)) {
@@ -349,6 +351,7 @@ process_dcpo_input_raw <- function(dcpo_input_raw_df) {
 dcpo_input_raw_gov <- process_dcpo_input_raw(dcpo_input_raw_gov)
 
 
+
 n_surveys <- surveys %>%
   distinct(survey) %>% 
   nrow()  #189
@@ -359,24 +362,24 @@ n_items <- dcpo_input_raw_gov %>%
 
 n_countries <- dcpo_input_raw_gov %>%
   distinct(country) %>% 
-  nrow()  #116
+  nrow()  #115
 
 n_cy <- dcpo_input_raw_gov %>%
   distinct(country, year) %>% 
   nrow() %>% 
   scales::comma() #1,555 country year
 
-n_years <- as.integer(summary(dcpo_input_raw_gov$year)[6]-summary(dcpo_input_raw_gov$year)[1]) #21 years
+n_years <- as.integer(summary(dcpo_input_raw_gov$year)[6]-summary(dcpo_input_raw_gov$year)[1]) # years
 
 spanned_cy <- dcpo_input_raw_gov %>% 
   group_by(country) %>% 
   summarize(years = max(year) - min(year) + 1) %>% 
   summarize(n = sum(years)) %>% 
   pull(n) %>% 
-  scales::comma() #2674
+  scales::comma() #2648
 
 total_cy <- {n_countries * n_years} %>% 
-  scales::comma()  #5452
+  scales::comma()  #5405
 
 year_range <- paste("from",
                     summary(dcpo_input_raw_gov$year)[1], #1973
@@ -385,7 +388,7 @@ year_range <- paste("from",
 n_cyi <- dcpo_input_raw_gov %>% 
   distinct(country, year, item) %>% 
   nrow() %>% 
-  scales::comma() #2,136
+  scales::comma() #2,126
 back_to_numeric <- function(string_number) {
   string_number %>% 
     str_replace(",", "") %>% 
@@ -398,30 +401,30 @@ back_to_numeric <- function(string_number) {
 
 # Introduction
 Trust is central to understanding political, social, and economic life.
-It is shaped by factors such as inequality, corruption, election integrity, and government performance, and in turn underpins regime support, influences policy preferences, and conditions public responses during crises such as COVID-19 (for reviews of trust’s dynamics, determinants, and consequences, see @Levi2000; @Citrin2018;@Devine2021trust;@Kerr2024).
+It is shaped by factors such as inequality, corruption, election integrity, and government performance, and in turn underpins regime support, influences policy preferences, and conditions public responses during crises such as COVID-19 (for reviews of trust’s dynamics, determinants, and consequences, see @Levi2000; @Citrin2018; @Devine2021trust; @Kerr2024).
 
-Although trust is a contested term,  a common view is that trust is relational—directed at specific targets, such as other persons, groups, or institutions-and rarely unconditional[@Levi2000]. 
+Although trust is a contested term,  a common view is that trust is relational—directed at specific targets, such as persons, groups, or institutions—and rarely unconditional [@Levi2000]. 
 Two main forms are political trust and social trust. 
-Political trust refers to "trust in a specific actor or institution" [@Devine2024], with different proposed dimensions,such as trust in representative vs. implementing institutions, or in political institutions vs. authorities (see more discussion at @Tai2022role[,pp32-34]).
-Social trust refers to "trust in human targets"[@Dinesen2020], including generalized social trust, particularized trust, and trust in specific groups.
+Political trust refers to "trust in a specific actor or institution" [@Devine2024], with proposed dimensions, for example trust in representative vs. implementing institutions, or trust in political institutions vs. authorities (see more discussion at @Tai2022role[, pp. 32-34]).
+Social trust refers to "trust in human targets" [@Dinesen2020], including generalized social trust, particularized trust, and trust in specific groups.
 
 
 Because political trust is essential to regime legitimacy, it has attracted extensive scholarly attention [@Citrin2018].
-Yet, despite its prominence, testing trust-related theories comparatively has been constrained by a lack of comprehensive cross-national, time-series data.
+Yet, despite its prominence, testing trust-related theories comparatively has been constrained by the lack of comprehensive cross-national, time-series data.
 Existing resources are often fragmented, limiting rigorous comparison of trust dynamics across political and regional contexts [@Kerr2024].
-Much work focuses on a single country (often the U.S. or U.K.), and even comparative studies concentrate on particular regions or democracies [@Devine2024].
-The lack of time-series comparative trust data makes it impossible to examine the dynamics between trust, its determinants—such as governance performance, inequality, and corruption—and its consequences, including regime support, voting behavior, and policy compliance.
+Much work focuses on a single country (often the U.S. or U.K.), and even comparative studies tend to concentrate on particular regions or democracies [@Devine2024].
+As a result, scholars have limited leverage to examine how trust responds to governance performance, inequality, and corruption, and how it shapes regime support, voting behavior, and policy compliance.
 
 
-To address this gap, I introduce a time-series cross-national trust in national government dataset (TrustGov), covering 115 countries/territories from 1973 to 2020.
-As mentioned before, scholars classify dimensions of political trust in multiple ways, and a full discussion of these approaches is beyond this paper’s scope.
-However, as with other comparative public attitude measures that lack multidimensionality [@Hu2025], most empirical measures of political trust remain blunt.
-Differentiating the object of trust helps capture its multidimentionality and support future studies [@Devine2024].
-This dataset focuses on national government as a specific object of political trust, because trust in national government has broader relevance across social science from public health and behavioral science to economics, law, public policy, and environmental studies.
+To address this gap, I introduce TrustGov, a cross-national time-series dataset of public trust in national government covering 115 countries and territories from 1973 to 2020.
+Scholars propose different dimensional frameworks for political trust, and a full discussion of these approaches is beyond the scope of this paper.
+However, as with other comparative public attitude measures that lack multidimensionality [@Hu2025], empirical measures of political trust are often blunt.
+Differentiating the object of trust helps capture its multidimensionality and supports future research [@Devine2024].
+This dataset focuses on national government as a specific object of political trust because trust in national government has broad interdisciplinary relevance, spanning public health, behavioral science, economics, law, public policy, and environmental studies.
 
-Using a Bayesian latent variable model developed by @Solt2020c, this dataset synthesizes various survey sources into comparable trust estimates, drawn from `r n_surveys` with `r n_cyi` country-year-item covering `r n_years` years.
+Using a Bayesian latent variable model developed by @Solt2020c, TrustGov synthesizes various survey sources into comparable estimates, drawn from `r n_surveys` surveys with `r n_cyi` country-year-item covering `r n_years` years.
 In addition to mean estimates, I release full posterior draws so scholars can explicitly incorporate measurement uncertainty inherent in latent variable modeling.
-With its temporal and cross-national coverage, TrustGov facilitates comparative research on the causes and consequences of trust in government, advancing our understanding of democratic governance, electoral behavior, policy development, and related areas.
+With its temporal and cross-national coverage, TrustGov facilitates comparative research on the causes and consequences of trust in government, advancing work on democratic governance, electoral behavior, policy development, and related areas.
 
 #  Data & Methods
 
@@ -443,8 +446,8 @@ countries_plot <- dcpo_input_raw_gov %>%
         axis.text.x  = element_text(angle = 90, vjust = .45, hjust = .95, size = 7),
         axis.title.y = element_text(size = 9),
         plot.title = element_text(hjust = 0.5, size = 11)) +
-  ylab("Year-Items\nObserved") +
-  ggtitle("Countries")
+  ylab("Country-year-item \n observed") +
+  ggtitle("Top countries \n by year–item observations")
 
 
 cby_plot <- dcpo_input_raw_gov %>%
@@ -463,7 +466,7 @@ cby_plot <- dcpo_input_raw_gov %>%
         axis.text.x  = element_text(angle = 90, vjust = .45, hjust = .95, size = 7),
         axis.title.y = element_text(size = 9),
         plot.title = element_text(hjust = 0.5, size = 11)) +
-  ylab("Years\nObserved") +
+  ylab("Years\n observed") +
   ggtitle("Countries")
 
 ybc_plot <- dcpo_input_raw_gov %>%
@@ -480,8 +483,8 @@ ybc_plot <- dcpo_input_raw_gov %>%
         axis.title.y = element_text(size = 9),
         plot.title = element_text(hjust = 0.5, size = 11)) +
   xlab("Year") +
-  ylab("Countries\nObserved") +
-  ggtitle("Year")
+  ylab("Number of countries") +
+  ggtitle("Number of countries \n observed by year")
 
 world_map <- map_data("world") %>% 
   filter(!long > 180)
@@ -508,7 +511,7 @@ cby_map <- world_map %>%
   scale_fill_distiller(na.value = "gray90", 
                        palette = "Blues",
                        direction = 1) +
-  ggtitle("Years Observed by Country") +
+  ggtitle("Years observed by country") +
   theme(plot.title = element_text(hjust = 0.5),
         legend.position = c(.05,.1),
         legend.justification = c(0,0), 
@@ -528,7 +531,7 @@ items_plot <- dcpo_input_raw_gov %>%
         axis.text.x  = element_text(angle = 90, vjust = .45, hjust = .95),
         axis.title.y = element_text(size = 9),
         plot.title = element_text(hjust = 0.5, size = 11)) +
-  ylab("Country-Years\nObserved") +
+  ylab("Country-years\n observed") +
   ggtitle("Items")
 
 
@@ -550,7 +553,7 @@ unique_survey <- length(unique(unlist(strsplit(un_surveys, ", ", fixed = TRUE)))
 most_common_item_cy <- dcpo_input_raw_gov %>% 
   filter(item == most_common_item) %>%
   distinct(country, year) %>%
-  nrow()  #816
+  nrow()  
 
 most_common_item_surveys <- dcpo_input_raw_gov %>%
   filter(item == most_common_item) %>%
@@ -566,12 +569,12 @@ top_country_cyi <- dcpo_input_raw_gov %>%
   count(country) %>%
   arrange(-n) %>% 
   slice_head() %>%
- pull(country) #Germany
+ pull(country) 
 
 top_country_cyi_obs <- dcpo_input_raw_gov %>%
   filter(country == top_country_cyi) %>%
   distinct(country, year, item) %>%
-  nrow()  #31
+  nrow()  
 
 others_gov <- dcpo_input_raw_gov %>%
   distinct(country, year, item) %>%
@@ -580,7 +583,7 @@ others_gov <- dcpo_input_raw_gov %>%
   slice(2:5) %>%
   pull(country) %>% 
   paste(collapse = ", ") %>% 
-  str_replace(", (\\w+)$", ", and \\1") # "El Salvador, Guatemala, Nicaragua, and Ecuador"
+  str_replace(", (\\w+)$", ", and \\1") 
 
 countries_cp <- dcpo_input_raw_gov %>%
   mutate(country = if_else(stringr::str_detect(country, "United"),
@@ -622,7 +625,7 @@ y_gov_peak_nn <- dcpo_input_raw_gov %>%
   distinct(country, year) %>%
   count(year, name = "nn") %>% 
   filter(nn == max(nn)) %>% 
-  pull(nn) #84 countries
+  pull(nn) 
 
 data_gov_poorest <- dcpo_input_raw_gov %>%
   distinct(country, year, item) %>%
@@ -631,7 +634,7 @@ data_gov_poorest <- dcpo_input_raw_gov %>%
   filter(n == min(n)) %>%
   pull(country) %>% 
   paste(collapse = ", ") %>% 
-  str_replace(", (\\w+)$", ", and \\1")  #Algeria, and Libya
+  str_replace(", (\\w+)$", ", and \\1")  
 
 wordify_numeral <- function(x) setNames(c("one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", " seventeen", "eighteen", "nineteen"), 1:19)[x]
 
@@ -650,16 +653,16 @@ cby_map + (countries_plot/ybc_plot) + plot_layout(widths = c(3.5, 1.5))
 
 ## Raw Data
 
-Although many national and cross-national surveys have asked questions on trust in national government, comparative data at the aggregate level is sparse and fragmented.
+Although many national and cross-national surveys have asked questions about trust in national government, comparative data at the aggregate level is sparse and fragmented.
 This fragmentation is primarily due to limited coverage across countries and years, as well as inconsistencies in question wording and interpretation.
 
-To construct a dynamic and comparable dataset, I systematically reviewed `r n_surveys` unique survey projects spanning `r n_countries` countries/territories over `r n_years` year.
+To construct a dynamic and comparable dataset, I systematically reviewed `r n_surveys` unique survey projects spanning `r n_countries` countries/territories over `r n_years` years.
 I identified `r n_items` unique survey questions that captured public attitudes toward trust in national government.
 To improve comparability and reduce uncertainty from sparse data, I excluded rarely asked survey items.
 
-In the country-years span, among the `r spanned_cy` country-years, `r {back_to_numeric(n_cy)/back_to_numeric(spanned_cy) * 100} %>% round()`% of it has available information.
+In the country-years span, among the `r spanned_cy` country-years, `r {back_to_numeric(n_cy)/back_to_numeric(spanned_cy) * 100} %>% round()`% have available information.
 However, if we have observations for every year in each country surveyed, the total would be `r total_cy`. 
-In fact, even collecting as much available national and cross-national data as possible, the current source data has `r n_cy` country-years which are `r {back_to_numeric(n_cy)/back_to_numeric(total_cy) * 100} %>% round()`% of a complete set of total country-year.
+In fact, even collecting as much available national and cross-national data as possible, the current source data has `r n_cy` country-years, which is `r {back_to_numeric(n_cy)/back_to_numeric(total_cy) * 100} %>% round()`% of a complete set of total country-years.
 
 The left panel of Figure \nobreakspace{}\ref{tgov_item_country_plots} maps the global distribution of observed country-years.
 European and Latin American countries have longer time series due to the frequent fielding of Eurobarometer and AmericasBarometer surveys, as well as strong scholarly interest in democratic and emerging regimes.
@@ -671,34 +674,30 @@ Overall, although such questions appeared as early as the 1970s, they were not s
 
 In the next section, I describe how sparse and non-comparable survey data are harmonized into comparable time-series trust estimates using a latent variable model.
 
-
 ## Measurements
-Latent variable measurement assumes the concept of interest is not directly observable but can be inferred from individuals' responses to relevant questions.
-Recently, pioneering studies have developed latent variable models specifically tailored to cross-national survey data [see @Claassen2019; @Caughey2019; @McGann2019; @Kolczynska2024].
-In this paper, I adopt the Dynamic Comparative Public Opinion (DCPO) model developed by @Solt2020c, which provides a better fit to survey data compared to alternatives [@Claassen2019;@Caughey2019], and effectively manages sparsity without requiring dense coverage or auxiliary population characteristics [@McGann2019; @Kolczynska2024].
+Latent variable measurement assumes that the concept of interest is not directly observable but can be inferred from individuals' responses to relevant questions.
+Recently, pioneering studies have developed latent variable models tailored to cross-national survey data [@Claassen2019; @Caughey2019; @McGann2019; @Kolczynska2024].
+In this paper, I adopt the Dynamic Comparative Public Opinion (DCPO) model developed by @Solt2020c, which fits cross-national survey data better than leading alternatives [@Claassen2019;@Caughey2019] and handles sparsity without requiring dense coverage or auxiliary population characteristics [@McGann2019; @Kolczynska2024].
 
-The DCPO model can address two principal challenges posed by the source data: incomparability and sparsity.
+The DCPO model addresses two principal challenges in the source data: incomparability and sparsity.
 To tackle incomparability across survey questions, the model includes two parameters.
-The _difficulty_ parameter captures how much trust is required to endorse a response (e.g., "a great deal" vs. "somewhat"), and the _dispersion_ parameter indicates how sensitively  responses reflect changes in the latent trust level. 
-A lower dispersion score means that a small change in responses corresponds to a substantial shift in the latent trait.
+The _difficulty_ parameter captures how much trust is required to endorse a response (e.g., "a great deal" vs. "somewhat"), and the _dispersion_ parameter indicates how sensitively responses reflect changes in the latent trust level.
+A lower dispersion value implies that a small change in responses corresponds to a substantial shift in the latent trait.
 Questions that are asked widely across countries and years anchor item parameters with greater precision, while rare items provide weaker information.
-By estimating item difficulty and dispersion and leveraging common items as anchors, DCPO maps responses from different questions and surveys on a single latent scale, yielding comparable country–year estimates.
-In simple terms, different questions are aligned onto the same scale, with widely asked questions stabilizing that scale.
-
+By estimating item difficulty and dispersion and leveraging common items as anchors, DCPO maps responses from different questions and surveys onto a single latent scale, yielding comparable country–year estimates.
+Put differently, different questions are aligned onto the same scale, with widely asked questions stabilizing that scale.
 
 To handle sparsity, DCPO adopts random-walk priors within countries, estimating missing latent values as the previous year’s trust level plus a small random shock.
 If a year lacks survey data, the estimate is informed by the most recent available data point in that country. 
-The introduced uncertainty is greater when there are longer gaps without survey data.
-As shown in Figure \nobreakspace{}\ref{tgov_item_country_plots}, the geographical and temporal distribution of raw data is uneven: European countries generally have dense time series, while African and Asian countries often have fewer observations. 
+Uncertainty increases as the time gap between observed years grows.
+As shown in Figure \nobreakspace{}\ref{tgov_item_country_plots}, the geographical and temporal distribution of raw data is uneven: European countries generally have dense time series, while African and Asian countries often have fewer observations.
 Consequently, estimates from data-rich contexts rely more directly on survey responses and carry less uncertainty, whereas estimates from data-sparse contexts carry greater uncertainty. 
-This uncertainty propagates into downstream analyses, indicating that results and inferences based on data-sparse contexts should be interpreted with greater caution. 
-Although estimates are smoothed over time to provide continuous coverage, they retain inherent uncertainty. 
+Although the model smooths estimates over time to provide continuous coverage, uncertainty remains.
+This uncertainty propagates into downstream analyses, so results and inferences based on data-sparse contexts should be interpreted more cautiously.
 For details on the DCPO model, see @Solt2020c [pp. 3–8]. 
-Approaches for incorporating this uncertainty into downstream analyses are discussed later.
+Approaches for incorporating this uncertainty are discussed later.
 
-I estimated TrustGov scores using the `DCPO` package for R [@Solt2020a].
-The resulting country–year estimates constitute the TrustGov scores.
-
+Using the `DCPO` R package [@Solt2020a], I estimated country–year TrustGov scores.
 
 ```{r dcpo_input, eval=FALSE, include=FALSE, results=FALSE}
 
@@ -813,7 +812,7 @@ res_c <- theta_summary %>%
 
 # Results
 
-```{r cs, fig.cap="TrustGOV Scores, Most Recent Available Year \\label{cs_mry}", fig.height=10, fig.width=8}
+```{r cs, fig.cap="TrustGov Scores, Most Recent Available Year (through 2020) \\label{cs_mry}", fig.height=10, fig.width=8}
 n_panes <- 2
 axis_text_size <- 10
 
@@ -854,7 +853,7 @@ p_theta <- ggplot(p1_data,
 
 
 p_theta +
-  plot_annotation(caption = "Note: Countries are ordered by their TrustGov scores in their most recent\navailable year; Gray whiskers represent 80% credible intervals.")
+  plot_annotation(caption = "Note: Countries are ordered by their TrustGov score in the most recent available year. Gray whiskers represent 80% credible intervals.")
 
 bottom5 <- p1_data %>% 
   arrange(ranked) %>% 
@@ -866,30 +865,25 @@ bottom5 <- p1_data %>%
 ```
 
 
-Figure\nobreakspace{}\ref{cs_mry} displays the most recent available TrustGov score for each of the 115 countries/territories in the dataset. 
-China and several Central Asian countries dominate the top positions, consistent with previous research indicating high levels of trust in these governments [@Schneider2017;@Paturyan2024;@Byaro2020].
+Figure\nobreakspace{}\ref{cs_mry} displays the most recent available TrustGov score for each of the 115 countries and territories in the dataset. 
+China and several Central Asian countries dominate the top positions, consistent with previous research documenting high levels of trust in these governments [@Schneider2017;@Paturyan2024;@Byaro2020].
 Less corrupt countries like Denmark and Switzerland also rank highly, while `r bottom5` show the lowest recent scores. 
-These lower-ranked countries faced serious challenges around the time of measurement, including corruption (Venezuela, Iraq), election-related violence (Brazil), and conflict or security threats (Tunisia, Libya).
+These lower-ranked countries faced serious challenges around the time of measurement, including corruption in Venezuela and Iraq, election-related violence in Brazil, and conflict or security threats in Tunisia and Libya.
 
 There are well-known concerns about the authenticity of self-reported data in authoritarian contexts, especially for sensitive questions [@Blair2020]. 
-However, empirical evidence is mixed—some studies find sensitivity biases are typically small [@Blair2020], while others suggest systematic misreporting under certain conditions [e.g., @Tannenberg2021], and still others find little evidence of bias in cases such as China [@Tang2016].
-Both high- and low-trust countries in Figure\nobreakspace{}\ref{cs_mry} include regimes classified as partly free or not free by @fh1, indicating that self-censorship or political wariness cannot by themselves explain why some authoritarian countries report high trust while others report low trust.
+However, empirical evidence is mixed.
+Some studies find sensitivity biases are typically small [@Blair2020], while others suggest systematic misreporting under certain conditions [e.g., @Tannenberg2021], and still others find little evidence of bias in cases such as China [@Tang2016].
+Both high- and low-trust countries in Figure\nobreakspace{}\ref{cs_mry} include regimes classified as partly free or not free by @fh1, suggesting that self-censorship or political wariness alone cannot account for why some authoritarian countries report high trust while others report low trust.
 In addition, although respondents' understanding and reporting of political trust may differ across regime types, prior research has shown that latent variable models can measure trust in central political institutions comparably across contexts [@Schneider2017].
-For transparency, I therefore report all results, while future research should continue to investigate the dynamics of trust in authoritarian contexts.
-
+For transparency, I therefore report all estimates, while future research should continue to investigate the dynamics of trust in authoritarian contexts.
 
 ```{r ts, fig.cap="TrustGov Scores Over Time Across Selected Countries, 1973–2020 \\label{ts_plots}", fig.height=3.5,fig.width = 7}
 
 countries <- c("Germany","United States","United Kingdom",
                 "Greece", "Turkey","Australia",
-               "China",  "India", "Brazil", 
-                "Chile", "Argentina", "Mexico"
+               "China",  "India", "Philippines", 
+                "Nigeria", "Argentina", "Mexico"
 )
-
-#"Philippines", "Nigeria",
-
-
-
 
 countries2 <- countries %>% 
   str_replace("United States", "U.S.") %>% 
@@ -905,7 +899,7 @@ ggplot(data = c_res, aes(x = year, y = mean)) +
   theme_bw() +
   theme(legend.position = "none") +
   coord_cartesian(xlim = c(1972, 2025), ylim = c(0, 1)) +
-  labs(x = NULL, y = "TrustGov Scores") +
+  labs(x = NULL, y = "TrustGov score") +
   geom_ribbon(data = c_res, aes(ymin = q10, ymax = q90, linetype=NA), alpha = .25) +
   geom_line(data = c_res) +
   facet_wrap(~country, nrow = 2) +
@@ -914,27 +908,27 @@ ggplot(data = c_res, aes(x = year, y = mean)) +
                                     vjust = .45,
                                     hjust = .95),
         strip.background = element_rect(fill = "white", colour = "white")) +
-  patchwork::plot_annotation(caption = "Note:lines represent TrustGov estimates; \ngray shading shows 80% credible intervals, reflecting the uncertainty around TrustGov estimates")
+  patchwork::plot_annotation(caption = "Note: Lines represent TrustGov estimates; \ngray shading shows 80% credible intervals, reflecting the uncertainty around TrustGov estimates.")
 ```
 
 
 Figure\nobreakspace{}\ref{ts_plots} illustrates how TrustGov scores evolve differently across 12 selected countries, with sharp increases in some contexts and long-term declines in others.
-For example, trust in government has risen prominently in countries such as Germany, India, the Philippines, and Nigeria—likely due to stable governance under Merkel in Germany and Modi in India [@Oecd_trust2025; @Sardesai2023], populist administration policies in the Philippines [@Curato2017], and reduced violence levels in Nigeria [@Harding2024].
+For example, trust in government has risen prominently in countries such as Germany, India, the Philippines, and Nigeria—likely reflecting stable governance under Merkel in Germany and Modi in India [@Oecd_trust2025; @Sardesai2023], populist administration in the Philippines [@Curato2017], and reduced violence levels in Nigeria [@Harding2024].
 In contrast, trust has remained consistently high in China and relatively low in Australia.
 
 TrustGov scores have declined steadily or dramatically in Greece, Mexico, Argentina, and the United States, primarily due to economic crises in Greece [@Ervasti2019], widespread corruption in Mexico [@Morris2010], financial instability and political dysfunction in Argentina [@cfr_argentina], and rising political polarization and partisanship in the United States [@Hetherington2018].
 
-Some countries exhibit fluctuations.
-In the United Kingdom, fluctuations could be associated with Brexit, sovereignty debates, and immigration issues [@guardian_covid2025].
-In Turkey, shifts may reflect the personalization of political power and economic volatility [@Pewturks2024].
+Some countries show greater volatility.
+In the United Kingdom, shifts may be associated with Brexit, sovereignty debates, and immigration issues [@guardian_covid2025].
+In Turkey, changes may reflect the personalization of political power and economic volatility [@Pewturks2024].
 
 These visualizations show uncertainty in the estimates through the width of the 80% credible intervals and highlight the need for caution in interpretation.
-It is also worth noticing that the current dataset ends in 2020, coinciding with the onset of the COVID-19 pandemic. 
+It is also worth noting that the current dataset ends in 2020, coinciding with the onset of the COVID-19 pandemic. 
 Post-2020 trends may deviate sharply from earlier trajectories, as some governments experienced surges of public trust during crisis response while others saw declines.
 The next data release will incorporate post-2020 surveys to capture these dynamics.
 Meanwhile, the cross-national and temporal variation already present in TrustGov scores invites in-depth analysis.
 
-To ensure their validity across contexts and over time, I conducted a series of convergent and construct validation tests.
+To assess whether TrustGov validly captures trust in national government across contexts and over time, I next report convergent and construct validation tests.
 
 
 ```{r internal_val_dat, include=FALSE}
@@ -992,10 +986,10 @@ internal_ts_dat <- dcpo_input_raw1 %>%
 ```
 
 
-```{r internalval,fig.cap = "Convergent Validation Through Individual TrustGov Source Data Survey Items \\label{inter_val}"}
+```{r internalval,fig.cap = "Convergent Validation Using Individual TrustGov Source Data Survey Items \\label{inter_val}"}
 
 internal_tscs_plot <- validation_plot(internal_tscs_dat,
-                                lab_x = .1,
+                                lab_x = .15,
                                 lab_y = 95) +
   theme_bw() +
   theme(legend.position="none",
@@ -1004,11 +998,11 @@ internal_tscs_plot <- validation_plot(internal_tscs_dat,
         plot.title = element_text(hjust = 0.5, size = 9),
         strip.background = element_blank()) +
   coord_cartesian(xlim = c(0,1), ylim = c(0,100)) +
-  labs(x = "TrustGov Score",
-       y = "% Expressing At Least Some of Trust")
+  labs(x = "TrustGov score",
+       y = "% expressing at least some trust")
 
 internal_cs_plot <- validation_plot(internal_cs_dat,
-                                lab_x = .1,
+                                lab_x = .15,
                                 lab_y = 95) +
   theme_bw() +
   theme(legend.position="none",
@@ -1018,8 +1012,8 @@ internal_cs_plot <- validation_plot(internal_cs_dat,
         # strip.text.x = element_text(size=5),
         strip.background = element_blank()) +
   coord_cartesian(xlim = c(0,1), ylim = c(0,100)) +
-  labs(x = "TrustGov Score",
-       y = "% Expressing At Least Some Trust \nin National Government")
+  labs(x = "TrustGov score",
+       y = "% expressing at least some trust \n in national government")
 
 internal_ts_plot <- validation_plot(internal_ts_dat,
                                     lab_x = 1990,
@@ -1037,7 +1031,7 @@ internal_ts_plot <- validation_plot(internal_ts_dat,
   labs(x = "Year",
        y = "Score") +
   annotate("text", x = 2005, y = .5, size = 2,
-           label = 'TrustGov Score') + #confidence in executive branch
+           label = 'TrustGov score') + #confidence in executive branch
   annotate("text", x = 2008, y = .2, size = 2,
          #  label = "Argentina")
            label = "Germany Allbus")
@@ -1049,28 +1043,28 @@ internal_tscs_plot + internal_cs_plot + internal_ts_plot  +
 ```
 
 Convergent validation tests whether a measure is empirically associated with alternative indicators of the same concept [@Adcock2001, 540].
-I conducted 'internal' convergent validation [see, e.g., @Caughey2019, 689; @Solt2020c, 10] by comparing TrustGov scores against individual source items used in estimation.
+I conducted "internal" convergent validation [see, e.g., @Caughey2019, 689; @Solt2020c, 10] by comparing TrustGov scores against individual source items used in estimation.
 
-Figure\nobreakspace{}\ref{inter_val} presents three validation plots comparing TrustGov scores with the percentage of respondents expressing at least some trust—calculated using responses equal to or above the median value of each scale.
-The left panel shows a scatterplot of country-years in which the TrustGov scores are plotted against responses to the Eurobarometer question: "Please tell me how much you personally trust each of the following institutions using a scale from 1 to 10, where [1] means ‘you do not trust the institution at all' and [10] means ‘you trust it completely’."
-The strong correlation (R = 0.88) indicates that TrustGov scores effectively capture variations in trust across country-years.
+Figure\nobreakspace{}\ref{inter_val} presents three validation plots comparing TrustGov scores with the percentage of respondents expressing at least some trust, calculated using responses at or above the median of each item’s response scale.
+The left panel shows a scatterplot of country-years in which TrustGov scores are plotted against responses to the Eurobarometer question: "Please tell me how much you personally trust each of the following institutions using a scale from 1 to 10, where [1] means ‘you do not trust the institution at all' and [10] means ‘you trust it completely’."
+The strong correlation [R = 0.88] indicates that TrustGov scores effectively capture variations in trust across country-years.
 
 The middle panel compares TrustGov scores with the responses to the question: "How much do you trust the national government in your country?" from the Wellcome Global Monitor Survey in 2018.
-This item was asked in more countries than any other trust question in a single survey over the past decade, and the strong correlation (R = 0.94) demonstrates the broad applicability of TrustGov scores across diverse contexts.
+This item was asked in more countries than any other trust question in a single survey over the past decade, and the strong correlation [R = 0.94] demonstrates the broad applicability of TrustGov scores across diverse contexts.
 
-Finally, the right panel compares TrustGov to the trend of the longest-running item in the Germany ALLBUS survey since 1984: "How much trust do you place in the federal government?"
-TrustGov scores align with the observed trend [R = 0.93], effectively capturing historical changes. 
-In all tests, the correlations are estimated while incorporating measurement uncertainty.
+Finally, the right panel compares TrustGov with the trend of the longest-running item in the Germany ALLBUS survey since 1984: "How much trust do you place in the federal government?"
+TrustGov scores align with the observed trend [R = 0.93], capturing historical changes over time. 
+In all tests, correlations are estimated accounting for measurement uncertainty.
 
 
-```{r tgovextval2,  fig.cap = "Construct Validation Using Perceived Corruption, Satisfaction, and Approval Rating Data \\label{tgov_ev2}", fig.height=3.5,fig.width = 8}
+```{r tgovextval2,  fig.cap = "Construct Validation Using Satisfaction, Perceived Corruption, and Approval Rating Data \\label{tgov_ev2}", fig.height=3.5,fig.width = 8}
 
 load(here::here("data","extval2.rda"))
 
 voter_corruption <-  voter_corruption %>% 
   left_join(theta_summary,
             by = c("country", "year")) %>% 
-  filter(!is.na(mean))     ##cor is small when using whole data. 
+  filter(!is.na(mean))      
 
 
 tgov_voter_merged <- theta_results_list %>%
@@ -1105,7 +1099,7 @@ tgovcor_cor <- tgov_corrupt_cor %>%
   paste0("R = ", .)
 
 
-voter_cor_label <- tibble(mean = 0.15, cor_prop = 95, label = tgovcor_cor)
+voter_cor_label <- tibble(mean = 0.15, cor_prop = 98, label = tgovcor_cor)
 
 voter_cor_plot <- ggplot(voter_corruption %>% filter (year == 2018),
                          aes(x = mean,
@@ -1121,8 +1115,8 @@ voter_cor_plot <- ggplot(voter_corruption %>% filter (year == 2018),
                      plot.title = element_text(hjust = 0.5, size = 9)
                     ) +
    coord_cartesian(xlim = c(0,1), ylim = c(0,100)) +
-  labs(x = "TrustGov Score", y = '% expressing that there is at least \n some widespread corruption in the country",\n2018') +
-  ggtitle("Eurobarometer 88.2,CSES5, \nWVS7")  +
+  labs(x = "TrustGov score", y = '% saying there is at least \n some widespread corruption (2018)') +
+  ggtitle("Eurobarometer 88.2, CSES5, \n WVS7")  +
   geom_label(data = voter_cor_label, aes(label = label),size = 2.5)
 
 
@@ -1179,7 +1173,7 @@ tgov_sat_plot <- ggplot(sat_tgov,
                    plot.title = element_text(hjust = 0.5, size = 9)
                   ) +
    coord_cartesian(xlim = c(0,1), ylim = c(0,100)) +
-  labs(x = "TrustGov Score", y = "% satisfying with the political system\n performance, WVS7") +
+  labs(x = "TrustGov score", y = "% satisfied with political system performance \n (WVS7)") +
   ggtitle("World Value Survey Wave 7")  +
   geom_label(data =tgov_sat_label, aes(label = label),size = 2.5)
 
@@ -1243,12 +1237,9 @@ tgov_ead_plot <- ggplot(ead2019  %>%
                    plot.title = element_text(hjust = 0.5, size = 9)
                   ) +
   coord_cartesian(xlim = c(0,1), ylim = c(0,100)) +
-  labs(x = "TrustGov Scores", y = "Executive Approval Estimates \n in OECD countries,\n Executive Approval Project") +
-   ggtitle("Executive Approval Estimates, \n2018")  +
+  labs(x = "TrustGov score", y = "Executive approval estimates \n in OECD countries \n (Executive Approval Project) ") +
+   ggtitle("Executive Approval Estimates, \n 2018")  +
   geom_label(data = tgov_ead_label, aes(label = label), size = 2.5)  
-
-
-
 
 
 (tgov_sat_plot + voter_cor_plot + tgov_ead_plot ) + patchwork::plot_annotation(caption = "Note: Gray whiskers and shading represent 80% credible intervals.")
@@ -1259,22 +1250,18 @@ tgov_ead_plot <- ggplot(ead2019  %>%
 ```
 
 
-Construct validation, which assesses whether a measure empirically correlates with other indicators that are theoretically expected to be causally related  [@Adcock2001, 542], was also conducted. 
-I focused on three such indicators: the public's satisfaction with political system performance, the public's perception of corruption, and executive approval ratings.
-Abundant research has shown that trust is a strong predictor of satisfaction with political system performance [@Hetherington2018] and approval ratings [@citrin2001political], while also being undermined of perceived corruption [@Anderson2003].
+Construct validation assesses whether a measure is empirically correlated with indicators that theory suggests are causally related to that measure [@Adcock2001, 542]. 
+I conducted construct validation using three such indicators: public satisfaction with political system performance, perceived corruption, and executive approval ratings.
+Prior research shows that trust is a strong predictor of satisfaction with political system performance [@Hetherington2018] and approval ratings [@citrin2001political], and is negatively associated with perceived corruption [@Anderson2003].
 
 The results are presented in Figure\nobreakspace{}\ref{tgov_ev2}.
-The left panel shows a clear positive relationship [R = 0.71] between TGOV scores and satisfaction with political system performance, measured as the percentage of individuals expressing at least some satisfaction in the WVS Wave 7. 
-
+The left panel shows a clear positive relationship [R = 0.71] between TrustGov scores and satisfaction with political system performance, measured as the share of respondents expressing at least some satisfaction in the WVS Wave 7. 
 A similar positive correlation [R = 0.71] between TrustGov scores and executive approval ratings appears in the right panel.
 The approval ratings are drawn from smoothed estimates for OECD countries in 2018 from the Executive Approval Project (version 2) [@carlin2019executive].
+The center panel shows a negative relationship [R = -0.72] between TrustGov and perceived widespread corruption, as surveyed in Eurobarometer, the Comparative Study of Electoral Systems (CSES), and the WVS in 2018.
+In all three tests, the correlation signs align with theoretical expectations.
 
-The center panel shows a negative relationship [R = -0.72] between TrustGov scores and perceptions of widespread corruption, as surveyed in Eurobarometer, the Comparative Study of Electoral Systems (CSES), and the WVS in year of 2017.
-In all three tests, the direction of correlation aligns with theoretical expectations.
-
-
-In sum, the convergent and construct validations provide strong evidence that the TrustGov scores are a valid measure of trust in national government.
-
+In sum, the convergent and construct validation results provide strong evidence that TrustGov is a valid measure of trust in national government.
 
 ```{r tgovextval, fig.cap = "Additional Validation Test Using Data of Trust in Parliament and Trust in Public Administration \\label{tgov_ev1}"}
 
@@ -1291,8 +1278,8 @@ ext_wvs_election_plot <- validation_plot(ext_wvs_election_dat,
         plot.title = element_text(hjust = 0.5, size = 9),
         strip.background = element_blank()) +
   coord_cartesian(xlim = c(0,1), ylim = c(0,100)) +
-  labs(x = "TrustGov Score",
-       y = "% Expressing Some Trust or More\nin Election") +
+  labs(x = "TrustGov score",
+       y = "% expressing some trust or more\nin election") +
    ggtitle("World Value Survey Wave 7")  
 
 
@@ -1307,8 +1294,8 @@ ext_eqls_parl_plot <- validation_plot(ext_eqls_parl_dat,
         plot.title = element_text(hjust = 0.5, size = 9),
         strip.background = element_blank()) +
   coord_cartesian(xlim = c(0,1), ylim = c(0,100)) +
-  labs(x = "TrustGov Score",
-       y = "% Expressing Some Trust or More\nin Parliament")
+  labs(x = "TrustGov score",
+       y = "% expressing some trust or more\nin parliament")
 
 
 ext_eb_pa_plot <- validation_plot(ext_eb_pa_dat,
@@ -1321,8 +1308,8 @@ ext_eb_pa_plot <- validation_plot(ext_eb_pa_dat,
         plot.title = element_text(hjust = 0.5, size = 9),
         strip.background = element_blank()) +
   coord_cartesian(xlim = c(0,1), ylim = c(0,100)) +
-  labs(x = "TrustGov Score",
-       y = "% Tend to Trust Public Administration")
+  labs(x = "TrustGov score",
+       y = "% expressing trust in \n public administration")
 
 # For each of the following institutions, please tell me if you tend to trust it or tend not to trust it
 
@@ -1332,42 +1319,38 @@ ext_eb_pa_plot <- validation_plot(ext_eb_pa_dat,
 
 ```
 
-In addition to the tests above,  I also examined survey items that were not part of the TrustGov score estimation but are empirically closely related to trust in government, trust in parliament and trust in public administration. 
-Although the classification of dimensions of political trust is debated, empirically, trust in government typically mirrors trust in parliament, and the two are often grouped together as indicators of political trust [@Dellmuth2024; @Van2024]. 
-Likewise, although scholars discuss distinctions between trust in government and trust in public administration, empirical results show that these two types of trust are closely, positively related [see more discussion at @Camoes2019]. 
+In addition to the tests above, I examined survey items that were not used to estimate TrustGov but are empirically closely related to trust in government:  trust in parliament and trust in public administration. 
+Although the dimensional structure of political trust is debated, empirically, trust in government typically moves closely with trust in parliament, and the two are often grouped as indicators of political trust [@Dellmuth2024; @Van2024]. 
+Likewise, although scholars distinguish trust in government and trust in public administration, empirical work finds a strong positive association between them [see more discussion at @Camoes2019]. 
 
-In Figure\nobreakspace{}\ref{tgov_ev1}, the TrustGov scores are compared against public confidence in parliament from the European Quality of Life Survey (EQLS) in the left plot and against the percentage of respondents who expressed trust in public administration in their country, as measured by Eurobarometer, in the right panel.
+In Figure\nobreakspace{}\ref{tgov_ev1}, TrustGov scores are compared against public confidence in parliament from the European Quality of Life Survey (EQLS) in the left plot and against the percentage of respondents who expressed trust in public administration in Eurobarometer in the right panel.
 
-Across both tests, the TrustGov measure was positively correlated with the these related forms of institutional trust, with stronger correlation for trust in parliament[R = 0.82], and moderate correlation for trust in public administration [R = 0.74].
-
+Across both tests, TrustGov is positively correlated with these related forms of institutional trust, with a stronger correlation for trust in parliament [R = 0.82], and a moderate correlation for trust in public administration [R = 0.74].
 
 #  Discussion & Conclusion
-Although political trust is a long-standing interdisciplinary topic, much of our understanding remains limited to single countries or regions with rich longitudinal data that may not generalize elsewhere, or to cross-sectional snapshots that cannot capture dynamic changes over time [@Kolczynska2024].
-The TrustGov dataset addresses this gap by providing comparable time-series cross-national measures of trust in government.
-It provides a foundation for investigating the causes and consequences of trust in government across contexts and over time, for example, how trust shapes attitudes toward climate change and public health policies, or how it interacts with polarization, personalist leaders, and crisis management.
-
+Although political trust is a long-standing interdisciplinary topic, much of our understanding still comes from single countries or regions with rich longitudinal data that may not generalize elsewhere, or from cross-sectional snapshots that cannot capture dynamic changes over time [@Kolczynska2024].
+The TrustGov dataset helps address this gap by providing comparable cross-national time-series measures of trust in national government.
+It supports research on the determinants and consequences of trust across contexts and over time, for example, how trust shapes attitudes toward climate change and public health policies, and how it interacts with polarization, personalist leaders, and crisis governance.
 
 TrustGov also supports qualitative and mixed-methods research. 
 Researchers can use TrustGov trends to identify countries or periods with sharp shifts in trust and explore them further through case studies.
-Identified turning points can be examined with process tracing or interviews to probe the mechanisms behind quantitative shifts.
+Identified turning points can be examined with process tracing or interviews to probe mechanisms behind observed shifts.
 The dataset also facilitates classic comparative strategies, such as most similar systems design and most different systems design. 
-Researchers can select countries with similar contexts but divergent trust trajectories, or countries that differ in most respects yet nonetheless display similar trust patterns.
-In this way, TrustGov connects large-scale patterns with fine-grained qualitative accounts, enabling researchers to contextualize and enrich explanations of how trust develops in specific settings.
+Researchers can select cases with similar contexts but divergent trust trajectories, or cases that differ in most respects yet exhibit similar trust patterns.
+In this way, TrustGov connects large-scale patterns with fine-grained qualitative accounts and strengthens contextual explanations of how trust develops in specific settings.
 
 
-Although TrustGov offers a valuable resource for studying trust in government, it also has limitations.
-First, as an aggregate-level dataset, it may obscure subnational variation, polarization in trust, or case-specific dynamics that require country expertise and qualitative or mixed methods to illuminate.
+TrustGov offers a valuable resource for studying trust in government, but it has limitations.
+First, as an aggregate-level measure, it may obscure subnational variation, polarization in trust, or case-specific dynamics that require country expertise and qualitative or mixed methods to illuminate.
 Second, the smoothing approach introduces measurement uncertainty, and ignoring uncertainty risks distorting inferences [@Tai2024].
-To mitigate this, I provide full posterior draws so that researchers can incorporate uncertainty directly into their downstream analysis [e.g., @Caughey2018; @Tai2024; @Woo2025]. 
-Finally, the current dataset ends in 2020.
+To facilitate appropriate use, I provide full posterior draws so researchers can incorporate uncertainty directly into their downstream analysis via different approaches [e.g., @Caughey2018; @Tai2024; @Woo2025]. 
+Finally, the current release ends in 2020.
 The COVID-19 pandemic might have reshaped trust in many countries.
 Researchers should be mindful of this temporal boundary when drawing inferences.
 
 The TrustGov project will continue to be updated and improved.
 The next planned release will incorporate surveys conducted after 2020, including post-pandemic waves.
 Future releases will expand the dataset on a rolling basis as new cross-national surveys become publicly available.
-
-
 
 # References {.unlisted .unnumbered}
 
